@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShipCommand — AWB Command Center</title>
+    <meta name="theme-color" content="#ec4899">
+    
+    <!-- NEW PIN LOGO - Professional Package/Box Icon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='50%25' stop-color='%23ec4899'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Cpath d='M30 35 L50 25 L70 35 L70 55 L50 65 L30 55 Z' fill='white' opacity='0.95'/%3E%3Cpath d='M50 25 L50 45 M50 45 L70 55 M50 45 L30 55' stroke='white' stroke-width='2' fill='none' opacity='0.5'/%3E%3C/svg%3E">
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='50%25' stop-color='%23ec4899'/%3E%3Cstop offset='100%25' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='180' height='180' rx='40' fill='url(%23g)'/%3E%3Cpath d='M54 63 L90 45 L126 63 L126 99 L90 117 L54 99 Z' fill='white' opacity='0.95'/%3E%3Cpath d='M90 45 L90 81 M90 81 L126 99 M90 81 L54 99' stroke='white' stroke-width='3' fill='none' opacity='0.5'/%3E%3C/svg%3E">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-dark: #0a0a0f;
+            --bg-card: #13131a;
+            --bg-elevated: #1a1a24;
+            --border: #2a2a35;
+            --border-light: #3a3a45;
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            
+            --pink: #ec4899;
+            --pink-light: #f472b6;
+            --purple: #8b5cf6;
+            --purple-light: #a78bfa;
+            --gradient: linear-gradient(135deg, #ec4899, #8b5cf6);
+            --gradient-hover: linear-gradient(135deg, #f472b6, #a78bfa);
+            
+            --mv: #06b6d4;
+            --dl: #ec4899;
+            --xb: #f97316;
+            --ek: #8b5cf6;
+            --bd: #3b82f6;
+            --dp: #10b981;
+            --sf: #eab308;
+            --ot: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+        .orb-1 { width: 500px; height: 500px; background: var(--pink); top: -200px; left: -200px; }
+        .orb-2 { width: 600px; height: 600px; background: var(--purple); bottom: -250px; right: -250px; animation-delay: -7s; }
+        .orb-3 { width: 400px; height: 400px; background: linear-gradient(135deg, var(--pink), var(--purple)); top: 50%; left: 50%; transform: translate(-50%, -50%); animation-delay: -14s; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(50px, -50px) scale(1.1); }
+            66% { transform: translate(-30px, 30px) scale(0.9); }
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 32px 24px; position: relative; z-index: 1; }
+
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 28px; background: rgba(19, 19, 26, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 16px; margin-bottom: 24px;
+            animation: slideDown 0.6s ease; flex-wrap: wrap; gap: 16px;
+        }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .brand { display: flex; align-items: center; gap: 16px; }
+        .brand-logo {
+            width: 48px; height: 48px; background: var(--gradient); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 20px; color: white; box-shadow: 0 8px 24px rgba(236, 72, 153, 0.4);
+        }
+        .brand-text h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 4px; white-space: nowrap; }
+        .brand-text p { font-size: 12px; color: var(--text-secondary); white-space: nowrap; }
+        .badge {
+            background: var(--gradient); color: white; padding: 8px 16px; border-radius: 20px;
+            font-size: 12px; font-weight: 700; box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4); white-space: nowrap;
+        }
+
+        .pro-hero {
+            background: rgba(19, 19, 26, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 32px;
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.6s ease 0.2s both;
+        }
+
+        .pro-hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: 0;
+        }
+
+        .hero-visual {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .radar-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid var(--pink);
+            opacity: 0;
+            animation: radarPulse 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        .radar-ring:nth-child(1) { width: 40px; height: 40px; animation-delay: 0s; border-color: var(--pink); }
+        .radar-ring:nth-child(2) { width: 40px; height: 40px; animation-delay: 1s; border-color: var(--purple); }
+        .radar-ring:nth-child(3) { width: 40px; height: 40px; animation-delay: 2s; border-color: var(--pink-light); }
+
+        .radar-core {
+            width: 16px;
+            height: 16px;
+            background: var(--gradient);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--pink);
+            z-index: 2;
+            animation: corePulse 2s ease-in-out infinite;
+        }
+
+        @keyframes radarPulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            100% { transform: scale(3.5); opacity: 0; }
+        }
+        @keyframes corePulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px var(--pink); }
+            50% { transform: scale(1.2); box-shadow: 0 0 30px var(--purple); }
+        }
+
+        .hero-status {
+            flex: 1;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .status-pill {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .status-pill:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+            animation: dotBlink 2s infinite;
+        }
+
+        @keyframes dotBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .live-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--pink-light);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: rgba(19, 19, 26, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 14px; padding: 16px;
+            display: flex; align-items: center; gap: 12px; transition: all 0.3s ease;
+            animation: slideUp 0.6s ease both; min-width: 0;
+        }
+        .stat-card:nth-child(1) { animation-delay: 0.1s; } .stat-card:nth-child(2) { animation-delay: 0.15s; }
+        .stat-card:nth-child(3) { animation-delay: 0.2s; } .stat-card:nth-child(4) { animation-delay: 0.25s; }
+        .stat-card:nth-child(5) { animation-delay: 0.3s; } .stat-card:nth-child(6) { animation-delay: 0.35s; }
+        .stat-card:nth-child(7) { animation-delay: 0.4s; } .stat-card:nth-child(8) { animation-delay: 0.45s; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .stat-card:hover { transform: translateY(-4px); border-color: var(--pink); box-shadow: 0 12px 32px rgba(236, 72, 153, 0.2); }
+        .stat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+        .stat-info { flex: 1; min-width: 0; overflow: hidden; }
+        .stat-label { font-size: 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .stat-value { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+        .input-panel {
+            background: rgba(19, 19, 26, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 20px; padding: 28px;
+            margin-bottom: 32px; animation: slideUp 0.6s ease 0.3s both; position: relative; overflow: hidden;
+        }
+        .input-panel::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--gradient); }
+        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .panel-title { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .entry-count { font-size: 13px; color: var(--text-secondary); font-weight: 500; white-space: nowrap; }
+        textarea {
+            width: 100%; height: 130px; background: var(--bg-dark); border: 2px solid var(--border);
+            border-radius: 12px; padding: 16px; color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace; font-size: 13px; resize: vertical; transition: all 0.3s ease;
+        }
+        textarea:focus { outline: none; border-color: var(--pink); box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.15); }
+        textarea::placeholder { color: var(--text-muted); }
+        .actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .btn {
+            padding: 11px 20px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer;
+            border: none; display: inline-flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif; white-space: nowrap;
+        }
+        .btn-primary { background: var(--gradient); color: white; box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4); }
+        .btn-primary:hover { background: var(--gradient-hover); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(236, 72, 153, 0.6); }
+        .btn-secondary { background: var(--bg-elevated); color: var(--text-secondary); border: 1px solid var(--border); }
+        .btn-secondary:hover { border-color: var(--text-secondary); color: var(--text-primary); transform: translateY(-2px); }
+        .btn-warning { background: rgba(249, 115, 22, 0.15); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.3); }
+        .btn-warning:hover { background: rgba(249, 115, 22, 0.25); transform: translateY(-2px); }
+        .btn-danger { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); margin-left: auto; }
+        .btn-danger:hover { background: rgba(239, 68, 68, 0.25); transform: translateY(-2px); }
+
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; animation: slideUp 0.6s ease 0.4s both; }
+        .courier-card {
+            background: rgba(19, 19, 26, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s ease;
+        }
+        .courier-card:hover { transform: translateY(-4px); border-color: var(--card-color); box-shadow: 0 12px 32px rgba(0,0,0,0.4); }
+        .card-top-bar { height: 4px; width: 100%; background: var(--card-color); }
+        .card-header { padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); gap: 12px; }
+        .card-title { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; min-width: 0; flex: 1; }
+        .card-title-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--card-color); display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 4px 12px var(--card-color); flex-shrink: 0; }
+        .card-count { background: var(--bg-dark); color: var(--text-muted); padding: 5px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+        .card-count.active { background: var(--card-color); color: white; }
+        .card-body { padding: 16px 18px; }
+        .data-box {
+            background: var(--bg-dark); border: 1px solid var(--border); border-radius: 10px; padding: 12px;
+            font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted);
+            max-height: 120px; overflow-y: auto; min-height: 60px; line-height: 1.6; word-break: break-all;
+        }
+        .data-box.has-data { color: var(--text-primary); }
+        .card-footer { padding: 14px 18px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .track-link { color: var(--text-secondary); text-decoration: none; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; transition: color 0.2s; white-space: nowrap; }
+        .track-link:hover { color: var(--text-primary); }
+        .copy-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .copy-btn { padding: 6px 12px; font-size: 11px; background: var(--bg-dark); color: var(--text-secondary); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s; white-space: nowrap; }
+        .copy-btn:hover { color: var(--text-primary); border-color: var(--border-light); }
+        .copy-btn.comma { color: var(--pink-light); border-color: rgba(236, 72, 153, 0.3); }
+        .copy-btn.comma:hover { background: rgba(236, 72, 153, 0.1); }
+
+        footer { text-align: center; margin-top: 40px; padding-top: 24px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+        footer span { color: var(--pink-light); font-weight: 700; }
+
+        .toast {
+            position: fixed; bottom: 28px; right: 28px; background: var(--gradient); color: white;
+            padding: 14px 24px; border-radius: 12px; font-size: 14px; font-weight: 600;
+            box-shadow: 0 12px 32px rgba(236, 72, 153, 0.5); transform: translateY(100px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; max-width: 90vw;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-light); }
+
+        @media (max-width: 768px) {
+            .pro-hero { flex-direction: column; text-align: center; padding: 24px; }
+            .status-row { justify-content: center; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .results-grid { grid-template-columns: 1fr; }
+            header { flex-direction: column; gap: 16px; text-align: center; }
+            .brand { flex-direction: column; }
+            .btn-danger { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-3"></div>
+
+    <div class="container">
+        <header>
+            <div class="brand">
+                <div class="brand-logo">📦</div>
+                <div class="brand-text">
+                    <h1>AWB Command Center</h1>
+                    <p>Auto-detect & separate courier shipments</p>
+                </div>
+            </div>
+            <span class="badge">v2.2.0 • VM Pro</span>
+        </header>
+
+        <div class="pro-hero">
+            <div class="hero-visual">
+                <div class="radar-ring"></div>
+                <div class="radar-ring"></div>
+                <div class="radar-ring"></div>
+                <div class="radar-core"></div>
+            </div>
+            <div class="hero-status">
+                <div class="status-row">
+                    <div class="status-pill">
+                        <div class="status-dot"></div>
+                        System Online
+                    </div>
+                    <div class="status-pill">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                        8 Couriers Linked
+                    </div>
+                    <div class="status-pill">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                        Ready to Process
+                    </div>
+                </div>
+                <div class="status-row" style="justify-content: flex-start; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <div class="live-clock" id="live-clock">00:00:00 AM</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Local Time</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">•</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); font-weight: 500;" id="live-date">Loading Date...</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">•</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Secure Connection</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--gradient);">📊</div>
+                <div class="stat-info"><div class="stat-label">Total</div><div class="stat-value" id="stat-total">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--mv);">🚚</div>
+                <div class="stat-info"><div class="stat-label">Movin</div><div class="stat-value" id="stat-mv">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--dl);">📦</div>
+                <div class="stat-info"><div class="stat-label">Delhivery</div><div class="stat-value" id="stat-dl">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--xb);">🐝</div>
+                <div class="stat-info"><div class="stat-label">Xpressbees</div><div class="stat-value" id="stat-xb">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--ek);">🛒</div>
+                <div class="stat-info"><div class="stat-label">Ekart</div><div class="stat-value" id="stat-ek">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--bd);">✈️</div>
+                <div class="stat-info"><div class="stat-label">BlueDart</div><div class="stat-value" id="stat-bd">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--dp);">🌍</div>
+                <div class="stat-info"><div class="stat-label">DP World</div><div class="stat-value" id="stat-dp">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--sf);">🚗</div>
+                <div class="stat-info"><div class="stat-label">Self</div><div class="stat-value" id="stat-sf">0</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="background: var(--ot);">❓</div>
+                <div class="stat-info"><div class="stat-label">Others</div><div class="stat-value" id="stat-ot">0</div></div>
+            </div>
+        </div>
+
+        <div class="input-panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    Input Source
+                </div>
+                <span class="entry-count" id="input-count">0 entries</span>
+            </div>
+            <textarea id="awb-input" placeholder="Paste AWB numbers here...&#10;Example:&#10;H90304954100&#10;5266410712810&#10;953874760200841"></textarea>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="classifyAWBs()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    Classify Now
+                </button>
+                <button class="btn btn-secondary" onclick="copyAllComma()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    Copy All
+                </button>
+                <button class="btn btn-warning" onclick="cleanInput()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    Remove Dupes
+                </button>
+                <button class="btn btn-danger" onclick="instantClear()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        <div class="results-grid" id="results-grid"></div>
+
+        <footer>App by <span>Vishnu Mohan</span> • ShipCommand</footer>
+    </div>
+
+    <div class="toast" id="toast">Done!</div>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            const dateString = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+            document.getElementById('live-clock').textContent = timeString;
+            document.getElementById('live-date').textContent = dateString;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        const COURIERS = [
+            { id: 'Movin',      name: 'Movin',      prefix: /^H/i,            track: 'https://movin.in/shipment/track',    color: 'var(--mv)',      icon: '🚚' },
+            { id: 'BlueDart',   name: 'BlueDart',   prefix: /^5366\d{7}$/,    track: 'https://www.bluedart.com/tracking',  color: 'var(--bd)',      icon: '✈️' },
+            { id: 'Delhivery',  name: 'Delhivery',  prefix: /^\d{10,14}$/,    track: 'https://track.delhivery.com/',       color: 'var(--dl)',      icon: '📦' },
+            { id: 'Xpressbees', name: 'Xpressbees', prefix: /^953874760/,     track: 'https://www.xpressbees.com/track',   color: 'var(--xb)',      icon: '🐝' },
+            { id: 'Ekart',      name: 'Ekart',      prefix: /^(EK|F)/i,       track: 'https://www.flipkart.com/tracking',  color: 'var(--ek)',      icon: '🛒' },
+            { id: 'DP World',   name: 'DP World',   prefix: /^DP/i,           track: 'https://www.dpworld.com/',           color: 'var(--dp)',      icon: '🌍' },
+            { id: 'SELF',       name: 'SELF',       prefix: /^SELF/i,         track: '#',                                  color: 'var(--sf)',      icon: '🚗' },
+            { id: 'Others',     name: 'Others',     prefix: null,             track: '#',                                  color: 'var(--ot)',      icon: '❓' }
+        ];
+
+        let classifiedData = {};
+
+        function initDashboard() {
+            const grid = document.getElementById('results-grid');
+            grid.innerHTML = '';
+            COURIERS.forEach(c => {
+                classifiedData[c.id] = [];
+                grid.innerHTML += `
+                    <div class="courier-card" style="--card-color: ${c.color}">
+                        <div class="card-top-bar"></div>
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-icon">${c.icon}</div>
+                                <span class="card-title-text">${c.name}</span>
+                            </div>
+                            <span class="card-count" id="count-${c.id}">0</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="data-box" id="data-${c.id}">No entries</div>
+                        </div>
+                        <div class="card-footer">
+                            <a href="${c.track}" target="_blank" class="track-link">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                Track
+                            </a>
+                            <div class="copy-group">
+                                <button class="copy-btn" onclick="copyCourier('${c.id}','lines')">Lines</button>
+                                <button class="copy-btn comma" onclick="copyCourier('${c.id}','comma')">Comma</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        document.getElementById('awb-input').addEventListener('input', function() {
+            const c = this.value.trim() ? this.value.trim().split(/[\s,;]+/).filter(a => a).length : 0;
+            document.getElementById('input-count').textContent = c + ' entries';
+        });
+
+        function cleanInput() {
+            const textarea = document.getElementById('awb-input');
+            const awbs = textarea.value.split(/[\s,;]+/).map(a => a.trim()).filter(a => a.length > 0);
+            const uniqueAWBs = [...new Set(awbs)];
+            if (uniqueAWBs.length === awbs.length) { showToast('No duplicates found!'); return; }
+            textarea.value = uniqueAWBs.join('\n');
+            document.getElementById('input-count').textContent = uniqueAWBs.length + ' entries';
+            showToast(`Removed ${awbs.length - uniqueAWBs.length} duplicates!`);
+        }
+
+        function classifyAWBs() {
+            const raw = document.getElementById('awb-input').value;
+            const awbs = raw.split(/[\s,;]+/).map(a => a.trim()).filter(a => a.length > 0);
+            COURIERS.forEach(c => classifiedData[c.id] = []);
+
+            awbs.forEach(awb => {
+                let matched = false;
+                for (const c of COURIERS) {
+                    if (c.id === 'Others') continue;
+                    if (c.prefix && c.prefix.test(awb)) { classifiedData[c.id].push(awb); matched = true; break; }
+                }
+                if (!matched) classifiedData['Others'].push(awb);
+            });
+            renderResults();
+            showToast(`Classified ${awbs.length} AWBs successfully!`);
+        }
+
+        function renderResults() {
+            let total = 0;
+            COURIERS.forEach(c => {
+                const entries = classifiedData[c.id];
+                const countEl = document.getElementById(`count-${c.id}`);
+                const dataEl = document.getElementById(`data-${c.id}`);
+                countEl.textContent = entries.length;
+                total += entries.length;
+                if (entries.length > 0) {
+                    countEl.classList.add('active');
+                    dataEl.textContent = entries.join('\n');
+                    dataEl.classList.add('has-data');
+                } else {
+                    countEl.classList.remove('active');
+                    dataEl.textContent = 'No entries';
+                    dataEl.classList.remove('has-data');
+                }
+            });
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-mv').textContent = (classifiedData['Movin'] || []).length;
+            document.getElementById('stat-dl').textContent = (classifiedData['Delhivery'] || []).length;
+            document.getElementById('stat-xb').textContent = (classifiedData['Xpressbees'] || []).length;
+            document.getElementById('stat-ek').textContent = (classifiedData['Ekart'] || []).length;
+            document.getElementById('stat-bd').textContent = (classifiedData['BlueDart'] || []).length;
+            document.getElementById('stat-dp').textContent = (classifiedData['DP World'] || []).length;
+            document.getElementById('stat-sf').textContent = (classifiedData['SELF'] || []).length;
+            document.getElementById('stat-ot').textContent = (classifiedData['Others'] || []).length;
+        }
+
+        function copyCourier(id, fmt) {
+            const entries = classifiedData[id];
+            if (!entries.length) { showToast('No entries!'); return; }
+            navigator.clipboard.writeText(fmt === 'comma' ? entries.join(',') : entries.join('\n'));
+            showToast(`Copied ${entries.length} ${id} AWBs!`);
+        }
+
+        function copyAllComma() {
+            let all = [];
+            COURIERS.forEach(c => { if (classifiedData[c.id].length) all = all.concat(classifiedData[c.id]); });
+            if (!all.length) { showToast('Nothing to copy!'); return; }
+            navigator.clipboard.writeText(all.join(','));
+            showToast(`Copied ${all.length} AWBs!`);
+        }
+
+        function instantClear() {
+            document.getElementById('awb-input').value = '';
+            document.getElementById('input-count').textContent = '0 entries';
+            COURIERS.forEach(c => classifiedData[c.id] = []);
+            renderResults();
+            showToast('Cleared all data!');
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2500);
+        }
+
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
